@@ -38,35 +38,39 @@ const login = async (req, res) => {
     }
 };
 
-
-const register = async(req,res) =>{
+const register = async (req, res) => {
     try {
-        const { name, email, password,dob,curr_semester,gender } = req.body;
-
-        if (!name || !email || !password,!dob,!curr_semester,!gender) {
-            return res.status(400).json({ message: "Enter all the fields" });
-        }
-
-        const user = await usermodel.findOne({ email });
-        if (user) {
-            return res.status(400).json({ message: "User already exists" });
-        }
-       
-
-        const hashpwd = await bcrypt.hash(password, 10);
-
-        await usermodel.create({ name, password: hashpwd, email,dob,curr_semester,gender });
-
-        res.status(200).json({ message: "User registered successfully" });
-
+      const { name, password, email, dob, gender, current_sem } = req.body;
+  
+    
+  
+      // Check if user already exists by email
+      const existingUser = await usermodel.findOne({ email });
+      if (existingUser) {
+        return res.status(400).json({ message: 'User already exists' });
+      }
+  
+      // Hash the password
+      const hashpwd = await bcrypt.hash(password, 10);
+  
+      // Create the new user
+      await usermodel.create({
+        name,
+        password: hashpwd,
+        email,
+        dob,
+        gender,
+        current_sem,
+      });
+  
+      // Send success response
+      return res.status(200).json({ message: 'User registered successfully' });
     } catch (error) {
-        console.error("Error registering user:", error);
-        res.status(500).json({ message: "Internal server error" });
+      console.error('Error registering user:', error);
+      return res.status(500).json({ message: 'Internal server error' });
     }
-
-} 
-
-
+  };
+  
 
 const gtpOtps = async (req, res) => {
     function generateOTP() {
