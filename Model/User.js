@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 
+// Define the user schema
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -9,43 +10,70 @@ const userSchema = new mongoose.Schema({
   email: {
     type: String,
     required: true,
-    unique: true, // Prevent duplicate emails
+    unique: true,
     lowercase: true,
     trim: true,
     validate: {
       validator: function (v) {
-        // Basic email regex validation
         return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
       },
       message: props => `${props.value} is not a valid email!`,
     },
   },
+  Reg: {
+    type: String,
+    required: true,
+    unique: true, // Ensure registration number is unique
+  },
   dob: {
-    type: Date, // Change to Date type for proper date handling
+    type: Date,
     required: true,
   },
   gender: {
     type: String,
     required: true,
-    enum: ['male', 'female', 'Other'], // Optionally restrict to certain values
+    enum: ['male', 'female', 'Other'],
   },
   password: {
     type: String,
     required: true,
-    minlength: 6, // Add minimum password length for security
+    minlength: 6,
   },
   current_sem: {
     type: Number,
     required: true,
-    min: 1, // Add minimum value validation for semester
+    min: 1,
+    max: 8,
+  },
+  mobileNo: {
+    type: Number,
+    required: true,
+    trim: true,
+    validate: {
+      validator: function (v) {
+        return /^\d{10}$/.test(v); // Simple validation for a 10-digit phone number
+      },
+      message: props => `${props.value} is not a valid mobile number!`,
+    },
+  }
+  ,
+  address: {
+    type: String,
+    required: true,
+    trim: true,
+  },
+  parentAddress: {
+    type: String,
+    required: true,
+    trim: true,
   },
   otpToken: {
     type: String,
-    default: null, // Ensure default value is null
+    default: null,
   },
   otpExpire: {
     type: Date,
-    default: null, // Ensure default value is null
+    default: null,
   },
   resetPwdToken: {
     type: String,
@@ -59,6 +87,55 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  sgpas: [
+    {
+      semester: {
+        type: Number,
+        required: true,
+        min: 1,
+        max: 8,
+      },
+      sgpa: {
+        type: Number,
+        required: true,
+        min: 0,
+        max: 10,
+      },
+    },
+  ],
+  cgpa: {
+    type: Number,
+    default: 0,
+    min: 0,
+    max: 10,
+  },
+  targetCgpa: {
+    type: Number,
+    min: 0,
+    max: 10,
+    default: null,
+  },
+});
+
+// Middleware to prevent duplicate SGPA entries for the same semester
+userSchema.pre('save', function (next) {
+  if (this.sgpas && this.sgpas.length > 0) {
+    // Check for duplicate semesters in the sgpas array
+    const semesterSet = new Set();
+    for (const sgpaRecord of this.sgpas) {
+      if (semesterSet.has(sgpaRecord.semester)) {
+        return next(new Error(`Duplicate SGPA entry for semester ${sgpaRecord.semester}`));
+      }
+      semesterSet.add(sgpaRecord.semester);
+    }
+
+    // Calculate CGPA if no duplicates are found
+    const totalSgpa = this.sgpas.reduce((sum, sgpaRecord) => sum + sgpaRecord.sgpa, 0);
+    this.cgpa = totalSgpa / this.sgpas.length;
+  } else {
+    this.cgpa = 0;
+  }
+  next();
 });
 
 // Create the model based on the schema

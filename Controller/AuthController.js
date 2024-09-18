@@ -6,13 +6,13 @@ const nodemailer = require('nodemailer');
 
 const login = async (req, res) => {
     try {
-        const { email, password } = req.body;
+        const { Reg, password } = req.body;
 
-        if (!email || !password) {
+        if (!Reg || !password) {
             return res.status(400).json({ message: "Enter all fields" });
         }
 
-        const user = await usermodel.findOne({ email });
+        const user = await usermodel.findOne({ Reg });
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
@@ -23,7 +23,7 @@ const login = async (req, res) => {
             const { password, ...userWithoutPassword } = user.toObject();
 
             const accessToken = jwt.sign(
-                { email: email, userId: user._id },
+                { Reg: Reg, userId: user._id }, // Use Reg here instead of email
                 process.env.ACCESS_TOKEN,
                 { expiresIn: '1d' }
             );
@@ -40,14 +40,12 @@ const login = async (req, res) => {
 
 const register = async (req, res) => {
     try {
-      const { name, password, email, dob, gender, current_sem } = req.body;
+      const { name, password, email, Reg, dob, gender, current_sem } = req.body;
   
-    
-  
-      // Check if user already exists by email
-      const existingUser = await usermodel.findOne({ email });
+      // Check if user already exists by email or registration number
+      const existingUser = await usermodel.findOne({ $or: [{ email }, { Reg }] });
       if (existingUser) {
-        return res.status(400).json({ message: 'User already exists' });
+        return res.status(400).json({ message: 'User with this email or registration number already exists' });
       }
   
       // Hash the password
@@ -58,6 +56,7 @@ const register = async (req, res) => {
         name,
         password: hashpwd,
         email,
+        Reg,
         dob,
         gender,
         current_sem,
