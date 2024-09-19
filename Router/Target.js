@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const userModel = require('../Model/User'); // Assuming this is the correct path to your User model
+const Certificate = require('../Model/Certificated');
+const Resume = require('../Model/ResumeModel');
 
-// Route to get student details by registration number
 router.get('/student/:reg', async (req, res) => {
   try {
     const regNo = req.params.reg; // Get the registration number from the URL params
@@ -88,20 +89,25 @@ router.get('/cgpa/:reg', async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
-router.get('/sgpas', async (req, res) => {
-  const userId = 'userId'; // Replace with actual user ID logic
+// Route to fetch SGPA data for a given registration number
+router.get('/sgpas/:reg', async (req, res) => {
+  const reg = req.params.reg;
 
   try {
-    const user = await userModel.findById(userId);
+    // Find user by registration number
+    const user = await userModel.findOne({ Reg: reg });
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
+    // Return the SGPA data
     res.status(200).json(user.sgpas);
   } catch (error) {
+    console.error('Error fetching SGPA:', error);
     res.status(500).json({ message: 'Error fetching SGPA', error });
   }
 });
+
 
 // Update student details
 router.put('/student/:reg', async (req, res) => {
@@ -156,22 +162,14 @@ router.get('/sgpa/:reg', async (req, res) => {
     res.status(500).json({ message: 'Error fetching SGPA data', error });
   }
 });
-// Route to set target CGPA
-router.post('/set-target', async (req, res) => {
-  const { targetCgpa, reg } = req.body;
-
-  // Convert targetCgpa to a number
-  const numericTargetCgpa = Number(targetCgpa);
+// Route to get target CGPA
+router.get('/target-cgpa/:reg', async (req, res) => {
+  const { reg } = req.params;
 
   // Debugging logs
   console.log('Registration Number:', reg);
-  console.log('Target CGPA:', numericTargetCgpa);
 
-  // Validate request body
-  if (isNaN(numericTargetCgpa) || numericTargetCgpa < 0 || numericTargetCgpa > 10) {
-    return res.status(401).send('Invalid target CGPA value');
-  }
-  
+  // Validate request parameter
   if (!reg) {
     return res.status(400).send('Registration number is required');
   }
@@ -184,18 +182,99 @@ router.post('/set-target', async (req, res) => {
       return res.status(404).send('User not found');
     }
 
-    // Update target CGPA
-    user.targetCgpa = numericTargetCgpa;
-
-    // Save the user document
-    await user.save();
-
-    res.status(200).send('Target CGPA set successfully');
+    // Send the target CGPA
+    res.status(200).json({ targetCgpa: user.targetCgpa });
   } catch (error) {
-    console.error('Error setting target CGPA:', error);
+    console.error('Error fetching target CGPA:', error);
     res.status(500).send('Server Error');
   }
 });
 
+
+// Route to upload a certificate
+router.post('/upload-certificate', async (req, res) => {
+  const { courseName, certificateUrl, reg } = req.body;
+
+  try {
+    const newCertificate = new Certificate({ courseName, certificateUrl, reg });
+    await newCertificate.save();
+    res.status(200).json({ certificate: newCertificate });
+  } catch (error) {
+    console.error('Error uploading certificate:', error);
+    res.status(500).json({ message: 'Error uploading certificate' });
+  }
+});
+
+// Route to fetch certificates by registration number
+router.get('/:reg', async (req, res) => {
+  const { reg } = req.params;
+
+  try {
+    const certificates = await Certificate.find({ reg });
+    res.status(200).json({ certificates });
+  } catch (error) {
+    console.error('Error fetching certificates:', error);
+    res.status(500).json({ message: 'Error fetching certificates' });
+  }
+});
+
+// Endpoint to edit a certificate
+router.put('/edit-certificate/:id', async (req, res) => {
+  const { courseName, certificateUrl } = req.body;
+  const { id } = req.params;
+
+  try {
+    const certificate = await Certificate.findById(id);
+    if (!certificate) {
+      return res.status(404).json({ message: 'Certificate not found' });
+    }
+
+    certificate.courseName = courseName;
+    certificate.certificateUrl = certificateUrl;
+
+    await certificate.save();
+    res.status(200).json({ message: 'Certificate updated successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Upload a new resume
+router.post('/upload-Resume', async (req, res) => {
+  const { courseName, certificateUrl, reg } = req.body;
+
+  try {
+    const newResume = new Resume({ courseName, certificateUrl, reg });
+    await newResume.save();
+    res.status(201).json(newResume);
+  } catch (error) {
+    res.status(500).json({ message: 'Error uploading resume', error });
+  }
+});
+
+// Fetch all resumes for a user
+router.get('/resume/:reg', async (req, res) => {
+  const { reg } = req.params;
+
+  try {
+    const resumes = await Resume.find({ reg });
+    res.status(200).json({ certificates: resumes });
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching resumes', error });
+  }
+});
+
+// Edit a resume
+router.put('/edit-Resume/:id', async (req, res) => {
+  const { id } = req.params;
+  const { courseName, certificateUrl, reg } = req.body;
+
+  try {
+    const updatedResume = await Resume.findByIdAndUpdate(id, { courseName, certificateUrl, reg }, { new: true });
+    res.status(200).json(updatedResume);
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating resume', error });
+  }
+});
 
 module.exports = router;
