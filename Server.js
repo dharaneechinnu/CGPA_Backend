@@ -19,6 +19,8 @@ app.use(express.json())
 
 app.use('/Auth',require('./Router/Router'))
 app.use('/api', require('./Router/Target'));
+//updated routes by aalan
+app.use('/admin',require('./Router/adminRouter'))
 
 
 app.listen(PORT,() =>{

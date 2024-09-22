@@ -7,6 +7,16 @@ const userSchema = new mongoose.Schema({
     required: true,
     trim: true,
   },
+  role: {             // added by aalan
+    type: String,
+    default: "student"
+  },
+  year:{             // added by aalan
+    type:Number
+  },
+  section: {             // added by aalan
+    type: String
+  },
   email: {
     type: String,
     required: true,
@@ -20,9 +30,8 @@ const userSchema = new mongoose.Schema({
       message: props => `${props.value} is not a valid email!`,
     },
   },
-  Reg: {
+  Reg: {             // changed from requiered to not required by aalan
     type: String,
-    required: true,
     unique: true, // Ensure registration number is unique
   },
   dob: {
@@ -41,13 +50,11 @@ const userSchema = new mongoose.Schema({
   },
   current_sem: {
     type: Number,
-    required: true,
     min: 1,
     max: 8,
   },
   mobileNo: {
     type: Number,
-    required: true,
     trim: true,
     validate: {
       validator: function (v) {
@@ -59,12 +66,10 @@ const userSchema = new mongoose.Schema({
   ,
   address: {
     type: String,
-    required: true,
     trim: true,
   },
   parentAddress: {
     type: String,
-    required: true,
     trim: true,
   },
   otpToken: {
@@ -91,13 +96,11 @@ const userSchema = new mongoose.Schema({
     {
       semester: {
         type: Number,
-        required: true,
         min: 1,
         max: 8,
       },
       sgpa: {
         type: Number,
-        required: true,
         min: 0,
         max: 10,
       },
