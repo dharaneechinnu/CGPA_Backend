@@ -35,7 +35,7 @@ const register = async (req, res) => {
 
   const registerTeacher = async (req, res) => {
     try {
-        const { name, password, mail, dob, gender } = req.body;
+        const { name, password, mail, dob, gender, year, section } = req.body;
   
       // Check if user already exists by email or registration number
       const existingUser = await teacher.findOne({mail});
@@ -47,13 +47,15 @@ const register = async (req, res) => {
       const hashpwd = await bcrypt.hash(password, 10);
   
       // Create the new user
-      await usermodel.create({
+      await teacher.create({
         name,
-        mail,
+        email: mail,
         password: hashpwd,
         dob,
         gender,
-        role: "teacher"
+        role: "teacher",
+        year,
+        section
       });
 
       const transporter = nodemailer.createTransport({

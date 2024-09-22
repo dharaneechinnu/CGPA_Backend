@@ -6,13 +6,13 @@ const nodemailer = require('nodemailer');
 
 const login = async (req, res) => {
     try {
-        const { Reg, password } = req.body;
+        const { mail, password } = req.body;
 
-        if (!Reg || !password) {
+        if (!mail || !password) {
             return res.status(400).json({ message: "Enter all fields" });
         }
 
-        const user = await usermodel.findOne({ Reg });
+        const user = await usermodel.findOne({ email: mail });
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
@@ -23,7 +23,7 @@ const login = async (req, res) => {
             const { password, ...userWithoutPassword } = user.toObject();
 
             const accessToken = jwt.sign(
-                { Reg: Reg, userId: user._id }, // Use Reg here instead of email
+                { mail: mail, userId: user._id }, // Use Reg here instead of email
                 process.env.ACCESS_TOKEN,
                 { expiresIn: '1d' }
             );

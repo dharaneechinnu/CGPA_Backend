@@ -25,6 +25,7 @@ app.use('/Auth', require('./Router/Router'));
 app.use('/api', require('./Router/Target'));
 //updated routes by aalan
 app.use('/admin',require('./Router/adminRouter'))
+app.use('/teacher',require('./Router/teacherRouter'))
 
 // Error handling middleware
 app.use((err, req, res, next) => {
