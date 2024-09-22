@@ -89,7 +89,6 @@ router.get('/cgpa/:reg', async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
-// Route to fetch SGPA data for a given registration number
 router.get('/sgpas/:reg', async (req, res) => {
   const reg = req.params.reg;
 
@@ -100,8 +99,8 @@ router.get('/sgpas/:reg', async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Return the SGPA data
-    res.status(200).json(user.sgpas);
+    // Return the SGPA data wrapped in an object
+    res.status(200).json({ sgpas: user.sgpas });
   } catch (error) {
     console.error('Error fetching SGPA:', error);
     res.status(500).json({ message: 'Error fetching SGPA', error });
