@@ -7,14 +7,14 @@ const userSchema = new mongoose.Schema({
     required: true,
     trim: true,
   },
-  role: {             // added by aalan
+  role: { // added by aalan
     type: String,
     default: "student"
   },
-  year:{             // added by aalan
-    type:Number
+  year: { // added by aalan
+    type: Number
   },
-  section: {             // added by aalan
+  section: { // added by aalan
     type: String
   },
   email: {
@@ -30,9 +30,10 @@ const userSchema = new mongoose.Schema({
       message: props => `${props.value} is not a valid email!`,
     },
   },
-  Reg: {             // changed from requiered to not required by aalan
+  Reg: { // changed from required to not required by aalan
     type: String,
-    unique: true, // Ensure registration number is unique
+    default: null,
+    
   },
   dob: {
     type: Date,
@@ -62,8 +63,7 @@ const userSchema = new mongoose.Schema({
       },
       message: props => `${props.value} is not a valid mobile number!`,
     },
-  }
-  ,
+  },
   address: {
     type: String,
     trim: true,
@@ -123,7 +123,6 @@ const userSchema = new mongoose.Schema({
 // Middleware to prevent duplicate SGPA entries for the same semester
 userSchema.pre('save', function (next) {
   if (this.sgpas && this.sgpas.length > 0) {
-    // Check for duplicate semesters in the sgpas array
     const semesterSet = new Set();
     for (const sgpaRecord of this.sgpas) {
       if (semesterSet.has(sgpaRecord.semester)) {
@@ -136,7 +135,7 @@ userSchema.pre('save', function (next) {
     const totalSgpa = this.sgpas.reduce((sum, sgpaRecord) => sum + sgpaRecord.sgpa, 0);
     this.cgpa = totalSgpa / this.sgpas.length;
   } else {
-    this.cgpa = 0;
+    this.cgpa = 0; // Set CGPA to 0 if there are no SGPA entries
   }
   next();
 });

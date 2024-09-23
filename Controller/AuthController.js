@@ -6,13 +6,13 @@ const nodemailer = require('nodemailer');
 
 const login = async (req, res) => {
     try {
-        const { mail, password } = req.body;
+        const { email, password } = req.body;
 
-        if (!mail || !password) {
+        if (!email || !password) {
             return res.status(400).json({ message: "Enter all fields" });
         }
 
-        const user = await usermodel.findOne({ email: mail });
+        const user = await usermodel.findOne({ email: email });
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
@@ -23,7 +23,7 @@ const login = async (req, res) => {
             const { password, ...userWithoutPassword } = user.toObject();
 
             const accessToken = jwt.sign(
-                { mail: mail, userId: user._id }, // Use Reg here instead of email
+                { email: email, userId: user._id }, // Use Reg here instead of email
                 process.env.ACCESS_TOKEN,
                 { expiresIn: '1d' }
             );
@@ -40,7 +40,7 @@ const login = async (req, res) => {
 
 const register = async (req, res) => {
     try {
-      const { name, password, email, Reg, dob, gender, current_sem } = req.body;
+      const { name, password, email, Reg, dob, gender, current_sem,year,section } = req.body;
   
       // Check if user already exists by email or registration number
       const existingUser = await usermodel.findOne({ $or: [{ email }, { Reg }] });
@@ -58,6 +58,8 @@ const register = async (req, res) => {
         email,
         Reg,
         dob,
+        year,
+        section,
         gender,
         current_sem,
       });

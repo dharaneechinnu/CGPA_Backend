@@ -189,6 +189,44 @@ router.get('/target-cgpa/:reg', async (req, res) => {
   }
 });
 
+// Route to set target CGPA
+router.post('/set-target', async (req, res) => {
+  const { reg, targetCgpa } = req.body;
+
+  // Debugging logs
+  console.log('Registration Number:', reg);
+  console.log('Target CGPA:', targetCgpa);
+
+  // Validate request parameters
+  if (!reg) {
+    return res.status(400).send('Registration number is required');
+  }
+
+  if (!targetCgpa || isNaN(targetCgpa)) {
+    return res.status(400).send('Valid target CGPA is required');
+  }
+
+  try {
+    // Find user by registration number
+    const user = await userModel.findOne({ Reg: reg });
+
+    if (!user) {
+      return res.status(404).send('User not found');
+    }
+
+    // Set the target CGPA
+    user.targetCgpa = targetCgpa;
+
+    // Save the updated user document
+    await user.save();
+
+    // Send a success response
+    res.status(200).json({ message: 'Target CGPA updated successfully', targetCgpa: user.targetCgpa });
+  } catch (error) {
+    console.error('Error setting target CGPA:', error);
+    res.status(500).send('Server Error');
+  }
+});
 
 // Route to upload a certificate
 router.post('/upload-certificate', async (req, res) => {
@@ -237,6 +275,22 @@ router.put('/edit-certificate/:id', async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
+router.delete('/delete-certificate/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const certificate = await Certificate.findById(id);
+    if (!certificate) {
+      return res.status(404).json({ message: 'Certificate not found' });
+    }
+
+    await Certificate.findByIdAndDelete(id);
+
+    res.status(200).json({ message: 'Certificate deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
 
 // Upload a new resume
 router.post('/upload-Resume', async (req, res) => {
@@ -262,7 +316,25 @@ router.get('/resume/:reg', async (req, res) => {
     res.status(500).json({ message: 'Error fetching resumes', error });
   }
 });
+router.delete('/delete-resume/:id', async (req, res) => {
+  const { id } = req.params;
 
+  try {
+    // Check if the certificate exists
+    const certificate = await Resume.findById(id);
+    if (!certificate) {
+      return res.status(404).json({ message: 'Resume not found' });
+    }
+
+    // Delete the certificate
+    await Resume.findByIdAndDelete(id);
+
+    res.status(200).json({ message: 'Resume deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting resume:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
 // Edit a resume
 router.put('/edit-Resume/:id', async (req, res) => {
   const { id } = req.params;
