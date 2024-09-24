@@ -1,3 +1,5 @@
+const mongoose = require('mongoose');
+
 const teacherSchema = new mongoose.Schema({
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
@@ -10,3 +12,8 @@ const teacherSchema = new mongoose.Schema({
     Reg: { type: String, unique: true, sparse: true }, // Add sparse if Reg can be null
   });
   
+
+// Create a model based on the schema
+const teacher = mongoose.model('Teacher', teacherSchema);
+
+module.exports = teacher;

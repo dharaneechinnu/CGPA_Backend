@@ -1,5 +1,5 @@
 const usermodel = require('../Model/adminModel');
-const teacher = require('../Model/User')
+const teacher = require('../Model/TecherSchema')
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const PASS = process.env.PASS;
@@ -73,6 +73,7 @@ const register = async (req, res) => {
       return res.status(500).json({ message: 'Internal server error' });
     }
   };
+
   const registerTeacher = async (req, res) => {
     try {
         const { name, password, mail, dob, gender, year, section } = req.body;
@@ -168,5 +169,7 @@ const deleteTeacher = async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+
+
 
   module.exports = {register,loginAdmin, registerTeacher,deleteTeacher,updateTeacher}
