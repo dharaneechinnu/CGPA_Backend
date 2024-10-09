@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { type } = require('os');
 
 // Define the user schema
 const userSchema = new mongoose.Schema({
@@ -34,6 +35,10 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: null,
     
+  },
+  aadharNo:{
+    type:Number,
+    unique:true
   },
   dob: {
     type: Date,

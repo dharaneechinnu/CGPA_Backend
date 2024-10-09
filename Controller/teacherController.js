@@ -44,7 +44,11 @@ const login = async (req, res) => {
         user: {
           id: existingUser._id,
           name: existingUser.name,
-          mail: existingUser.mail,
+          mail: existingUser.email,
+          role: existingUser.role,
+          year:existingUser.year,
+          section:existingUser.section,
+
           // Add other user fields you want to send in the response
         },
       });
