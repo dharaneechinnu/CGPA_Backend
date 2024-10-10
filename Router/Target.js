@@ -89,7 +89,7 @@ router.get('/cgpa/:reg', async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
-router.get('/sgpas/:reg', async (req, res) => {
+router.get('/sgpa/:reg', async (req, res) => {
   const reg = req.params.reg;
 
   try {
@@ -101,9 +101,34 @@ router.get('/sgpas/:reg', async (req, res) => {
 
     // Return the SGPA data wrapped in an object
     res.status(200).json({ sgpas: user.sgpas });
+    console.log({sgpas: user.sgpas})
   } catch (error) {
     console.error('Error fetching SGPA:', error);
     res.status(500).json({ message: 'Error fetching SGPA', error });
+  }
+});
+
+// Delete SGPA record by ID
+router.delete('/sgpa/:id', async (req, res) => {
+  const sgpaId = req.params.id;
+  console.log("SGPA ID to delete:", sgpaId);
+
+  try {
+    // Find the user containing the SGPA record and remove the specific SGPA by ID
+    const user = await userModel.findOneAndUpdate(
+      { 'sgpas._id': sgpaId },  // Find user by SGPA record's _id
+      { $pull: { sgpas: { _id: sgpaId } } },  // Remove SGPA record from the user's sgpas array
+      { new: true }  // Return the updated user document
+    );
+
+    if (!user) {
+      return res.status(404).json({ message: 'SGPA record not found' });
+    }
+
+    res.status(200).json({ message: 'SGPA record deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting SGPA:', error);
+    res.status(500).json({ message: 'Error deleting SGPA', error });
   }
 });
 
