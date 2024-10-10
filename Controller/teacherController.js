@@ -31,14 +31,12 @@ const getStudents = async (req, res) => {
   }
 };
 
-
-// Teacher login
 const login = async (req, res) => {
     try {
-        const { email, password } = req.body;
-
+        const { email, password } = req.body;  // Destructure properly from req.body
+        
         // Find the teacher by email
-        const teacher = await teacherModel.findOne({ email });
+        const teacher = await teacherModel.findOne({ email: email });
         if (!teacher) {
             return res.status(400).json({ message: 'Invalid email or password' });
         }
@@ -46,7 +44,7 @@ const login = async (req, res) => {
         // Check if password matches
         const isPasswordValid = await bcrypt.compare(password, teacher.password);
         if (!isPasswordValid) {
-            return res.status(400).json({ message: 'Invalid email or password' });
+            return res.status(401).json({ message: 'Invalid email or password' });
         }
 
         // Generate a JWT token for session management

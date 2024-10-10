@@ -40,37 +40,45 @@ console.log(email,password)
 
 const register = async (req, res) => {
     try {
-      const { name, password, email, Reg, dob, gender, current_sem,year,section } = req.body;
-  
-      // Check if user already exists by email or registration number
-      const existingUser = await usermodel.findOne({ $or: [{ email }, { Reg }] });
-      if (existingUser) {
-        return res.status(400).json({ message: 'User with this email or registration number already exists' });
-      }
-  
-      // Hash the password
-      const hashpwd = await bcrypt.hash(password, 10);
-  
-      // Create the new user
-      await usermodel.create({
-        name,
-        password: hashpwd,
-        email,
-        Reg,
-        dob,
-        year,
-        section,
-        gender,
-        current_sem,
-      });
-  
-      // Send success response
-      return res.status(200).json({ message: 'User registered successfully' });
+        const { name, password, email, Reg, dob, gender, current_sem, year, section } = req.body;
+
+        // Validate input data
+        if (!name || !password || !email || !Reg || !dob || !gender || !current_sem || !year || !section) {
+            return res.status(400).json({ message: 'All fields are required' });
+        }
+
+        // Check if user already exists by email or registration number
+        const existingUser = await usermodel.findOne({ $or: [{ email }, { Reg }] });
+        if (existingUser) {
+            return res.status(400).json({ message: 'User with this email or registration number already exists' });
+        }
+
+        // Hash the password
+        const hashpwd = await bcrypt.hash(password, 10);
+
+        // Create the new user
+        await usermodel.create({
+            name,
+            password: hashpwd,
+            email,
+            Reg,
+            dob,
+            year,
+            section,
+            gender,
+            current_sem,
+        });
+
+        // Send success response
+        return res.status(200).json({ message: 'User registered successfully' });
     } catch (error) {
-      console.error('Error registering user:', error);
-      return res.status(500).json({ message: 'Internal server error' });
+        console.error('Error registering user:', error);
+
+        // Handle general errors
+        return res.status(500).json({ message: 'Internal server error' });
     }
-  };
+};
+
   
 
 const gtpOtps = async (req, res) => {

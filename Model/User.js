@@ -1,22 +1,20 @@
 const mongoose = require('mongoose');
-const { type } = require('os');
 
-// Define the user schema
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
     trim: true,
   },
-  role: { // added by aalan
+  role: {
     type: String,
-    default: "student"
+    default: "student",
   },
-  year: { // added by aalan
-    type: Number
+  year: {
+    type: Number,
   },
-  section: { // added by aalan
-    type: String
+  section: {
+    type: String,
   },
   email: {
     type: String,
@@ -26,19 +24,14 @@ const userSchema = new mongoose.Schema({
     trim: true,
     validate: {
       validator: function (v) {
-        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); // Basic email validation
       },
       message: props => `${props.value} is not a valid email!`,
     },
   },
-  Reg: { // changed from required to not required by aalan
+  Reg: {
     type: String,
     default: null,
-    
-  },
-  aadharNo:{
-    type:Number,
-    unique:true
   },
   dob: {
     type: Date,
@@ -60,11 +53,11 @@ const userSchema = new mongoose.Schema({
     max: 8,
   },
   mobileNo: {
-    type: Number,
+    type: String, // Changed to String for handling leading zeros and large numbers
     trim: true,
     validate: {
       validator: function (v) {
-        return /^\d{10}$/.test(v); // Simple validation for a 10-digit phone number
+        return /^\d{10}$/.test(v); // 10-digit mobile number validation
       },
       message: props => `${props.value} is not a valid mobile number!`,
     },
