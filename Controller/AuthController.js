@@ -79,6 +79,7 @@ const register = async (req, res) => {
     }
 };
 
+  //OTP Issed fixed By ARUN 
   
 
 const gtpOtps = async (req, res) => {
